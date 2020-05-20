@@ -17,8 +17,11 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.example.crud.repositories.UserRepository.hasEmail;
+import static com.example.crud.repositories.UserRepository.hasName;
+import static org.springframework.data.jpa.domain.Specification.where;
+
 @RestController
-@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -27,18 +30,12 @@ public class UserController {
     @Autowired
     private CountryService countryService;
 
-    @GetMapping(produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping("/users")
     public Iterable<User> showAllUsers() {
-        Iterable<User> users = userService.findAllUsers();
-
-        if (!users.iterator().hasNext()) {
-            throw new ItemNotFoundException("No users found.");
-        }
-
-        return users;
+        return userService.findAllUsers();
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody User user) {
         Optional<Country> countryInDb = countryService.findByName(user.getCountry().getName());
@@ -58,9 +55,8 @@ public class UserController {
 
     }
 
-    @DeleteMapping("/{id}")
-    public @ResponseBody
-    void delete(@PathVariable("id") Integer userId) {
+    @DeleteMapping("/users/{id}")
+    public void delete(@PathVariable("id") Integer userId) {
         Optional<User> user = userService.findUserById(Long.valueOf(userId));
 
         if (!user.isPresent()) {
@@ -69,8 +65,11 @@ public class UserController {
         userService.deleteUser(user.get());
     }
 
-    @ResponseBody
-    public String filters(@RequestParam String name, @RequestParam String email) {
-        return null;
+    @GetMapping("/users/filter")
+    public Iterable<User> filters(@RequestParam(required = false) String name,
+                                  @RequestParam(required = false) String email) {
+        return userService.findAllByCriteria(
+                where(hasName(name))
+                        .or(hasEmail(email)));
     }
 }

@@ -1,17 +1,17 @@
 package com.example.crud.repositories;
 
-import com.example.crud.models.Country;
 import com.example.crud.models.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Optional;
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-public interface UserRepository extends CrudRepository<User, Long> {
+    static Specification<User> hasName(String name) {
+        return (user, cq, cb) -> cb.equal(user.get("name"), name);
+    }
 
-    Optional<User> findByName(String username);
-
-    Optional<User> findByEmail(String email);
-
-    Optional<User> findByCountry(Country country);
-
+    static Specification<User> hasEmail(String email) {
+        return (user, cq, cb) -> cb.like(user.get("email"), email);
+    }
 }

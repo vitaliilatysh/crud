@@ -1,13 +1,13 @@
 package com.example.crud.services.impl;
 
-import com.example.crud.models.Country;
 import com.example.crud.models.User;
 import com.example.crud.repositories.UserRepository;
 import com.example.crud.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,28 +27,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Optional<User> findUserByName(String name) {
-        return userRepository.findByName(name);
-    }
-
-    @Override
     public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return Optional.empty();
     }
 
     @Override
-    public Optional<User> findUserByCountry(Country country) {
-        return userRepository.findByCountry(country);
-    }
-
-    @Override
-    public Iterable<User> findUsersByCreationDateStartedFrom(Date creationDateStartedFrom) {
-        return null;
-    }
-
-    @Override
-    public Iterable<User> findUsersByCreationDateStartedBefore(Date creationDateStartedBefore) {
-        return null;
+    public List<User> findAllByCriteria(Specification<User> criteria) {
+        return userRepository.findAll(criteria);
     }
 
     @Override

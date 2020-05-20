@@ -1,9 +1,9 @@
 package com.example.crud.services;
 
-import com.example.crud.models.Country;
 import com.example.crud.models.User;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
@@ -12,15 +12,9 @@ public interface IUserService {
 
     Optional<User> findUserById(Long id);
 
-    Optional<User> findUserByName(String name);
-
     Optional<User> findUserByEmail(String email);
 
-    Optional<User> findUserByCountry(Country country);
-
-    Iterable<User> findUsersByCreationDateStartedFrom(Date creationDateStartedFrom);
-
-    Iterable<User> findUsersByCreationDateStartedBefore(Date creationDateStartedBefore);
+    List<User> findAllByCriteria(Specification<User> criteria);
 
     void createUser(User user);
 
