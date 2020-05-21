@@ -72,4 +72,19 @@ public class UserController {
                 where(hasName(name))
                         .or(hasEmail(email)));
     }
+
+    @PutMapping("/users/{id}")
+    public void update(@RequestBody User user, @PathVariable("id") Integer userId) {
+        Optional<User> userInDb = userService.findUserById(Long.valueOf(userId));
+
+        if (!userInDb.isPresent()) {
+            throw new ItemNotFoundException(userId.toString());
+        }
+
+        User userToUpdate = userInDb.get();
+        userToUpdate.setName(user.getName());
+        userToUpdate.setEmail(user.getEmail());
+
+        userService.updateUser(userInDb.get());
+    }
 }
