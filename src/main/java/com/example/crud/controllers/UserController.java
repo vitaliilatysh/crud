@@ -8,17 +8,17 @@ import com.example.crud.models.User;
 import com.example.crud.repositories.CountryRepository;
 import com.example.crud.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.example.crud.repositories.UserRepository.hasEmail;
-import static com.example.crud.repositories.UserRepository.hasName;
+import static com.example.crud.repositories.UserRepository.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
 @RestController
@@ -50,7 +50,7 @@ public class UserController {
             throw new IllegalArgumentException(user.getCountry().getName());
         }
         user.setRoles(Role.USER.name());
-        user.setCreationDate(Timestamp.from(Instant.now()));
+        user.setCreationDate(LocalDateTime.now());
         user.setCountry(countryInDb.get());
         userService.save(user);
 
@@ -68,10 +68,18 @@ public class UserController {
 
     @GetMapping("/users/filter")
     public Iterable<User> filters(@RequestParam(required = false) String name,
-                                  @RequestParam(required = false) String email) {
-        return userService.findAll(
-                where(hasName(name))
-                        .or(hasEmail(email)));
+                                  @RequestParam(required = false) String email,
+                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(required = false) LocalDate from,
+                                  @RequestParam(required = false) String country) {
+        Country byShortCode = null;
+        if (country != null) {
+            byShortCode = countryService.findByCountryCode(country).orElse(null);
+        }
+
+        return userService.findAll(where(hasName(name))
+                .and(hasEmail(email))
+                .and(hasCountry(byShortCode))
+                .and(createdFrom(from)));
     }
 
     @PutMapping("/users/{id}")
