@@ -5,8 +5,8 @@ import com.example.crud.exceptions.ItemNotFoundException;
 import com.example.crud.models.Country;
 import com.example.crud.models.Role;
 import com.example.crud.models.User;
-import com.example.crud.services.impl.CountryService;
-import com.example.crud.services.impl.UserService;
+import com.example.crud.repositories.CountryRepository;
+import com.example.crud.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,21 +25,22 @@ import static org.springframework.data.jpa.domain.Specification.where;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userService;
 
     @Autowired
-    private CountryService countryService;
+    private CountryRepository countryService;
 
     @GetMapping("/users")
     public Iterable<User> showAllUsers() {
-        return userService.findAllUsers();
+        return userService.findAll();
     }
 
     @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody User user) {
-        Optional<Country> countryInDb = countryService.findByName(user.getCountry().getName());
-        Optional<User> userInDb = userService.findUserByEmail(user.getEmail());
+        Country countryRequested = user.getCountry();
+        Optional<Country> countryInDb = countryService.findById(countryRequested.getId());
+        Optional<User> userInDb = userService.findByEmail(user.getEmail());
 
         if (userInDb.isPresent()) {
             throw new ItemAlreadyExistException("User with such email already exist.");
@@ -51,40 +52,46 @@ public class UserController {
         user.setRoles(Role.USER.name());
         user.setCreationDate(Timestamp.from(Instant.now()));
         user.setCountry(countryInDb.get());
-        userService.createUser(user);
+        userService.save(user);
 
     }
 
     @DeleteMapping("/users/{id}")
     public void delete(@PathVariable("id") Integer userId) {
-        Optional<User> user = userService.findUserById(Long.valueOf(userId));
+        Optional<User> user = userService.findById(Long.valueOf(userId));
 
         if (!user.isPresent()) {
             throw new ItemNotFoundException(userId.toString());
         }
-        userService.deleteUser(user.get());
+        userService.delete(user.get());
     }
 
     @GetMapping("/users/filter")
     public Iterable<User> filters(@RequestParam(required = false) String name,
                                   @RequestParam(required = false) String email) {
-        return userService.findAllByCriteria(
+        return userService.findAll(
                 where(hasName(name))
                         .or(hasEmail(email)));
     }
 
     @PutMapping("/users/{id}")
     public void update(@RequestBody User user, @PathVariable("id") Integer userId) {
-        Optional<User> userInDb = userService.findUserById(Long.valueOf(userId));
-
+        Optional<User> userInDb = userService.findById(Long.valueOf(userId));
         if (!userInDb.isPresent()) {
             throw new ItemNotFoundException(userId.toString());
+        }
+
+        Country countryToSet = user.getCountry();
+        Optional<Country> countryInDb = countryService.findById(countryToSet.getId());
+        if (!countryInDb.isPresent()) {
+            throw new ItemNotFoundException("No country found by id: " + countryToSet.getId());
         }
 
         User userToUpdate = userInDb.get();
         userToUpdate.setName(user.getName());
         userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setCountry(countryInDb.get());
 
-        userService.updateUser(userInDb.get());
+        userService.save(userInDb.get());
     }
 }

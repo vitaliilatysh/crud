@@ -1,8 +1,11 @@
 package com.example.crud.models;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -10,27 +13,31 @@ import java.util.Set;
 
 @Entity
 @Table(name = "country")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Country implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
     private Long id;
     @Column(name = "name")
     private String name;
     @Column(name = "short_code")
     private String shortCode;
-
     @JsonManagedReference
-    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<User> users = new HashSet<>();
 
-//    @JsonCreator
-//    public Country(Long id) {
-//        this.id = id;
-//    }
-
-    public Country(){
-
+    public Country() {
     }
+
+    public String getShortCode() {
+        return shortCode;
+    }
+
+    public void setShortCode(String shortCode) {
+        this.shortCode = shortCode;
+    }
+
     public Long getId() {
         return id;
     }
@@ -78,10 +85,6 @@ public class Country implements Serializable {
                 ", users=" + users.size() +
                 ", shortCode=" + shortCode +
                 '}';
-    }
-
-    public void setShortCode(String shortCode) {
-        this.shortCode = shortCode;
     }
 }
 

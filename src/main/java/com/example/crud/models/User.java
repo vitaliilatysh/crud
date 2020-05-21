@@ -1,11 +1,12 @@
 package com.example.crud.models;
 
 
-import com.example.crud.serialization.UserDeserializer;
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-@JsonDeserialize(using = UserDeserializer.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +30,10 @@ public class User implements Serializable {
     @Column(name = "creation_date")
     private Timestamp creationDate;
 
+    @NotNull
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "country_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id")
     private Country country;
 
     public Long getId() {
@@ -42,8 +44,16 @@ public class User implements Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Timestamp getCreationDate() {
@@ -98,11 +108,4 @@ public class User implements Serializable {
                 '}';
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
