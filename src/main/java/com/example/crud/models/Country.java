@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,11 +13,8 @@ import java.util.Set;
 @Entity
 @Table(name = "country")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Country implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    private Long id;
+public class Country extends BaseModel implements Serializable {
+
     @Column(name = "name")
     private String name;
     @Column(name = "short_code")
@@ -36,14 +32,6 @@ public class Country implements Serializable {
 
     public void setShortCode(String shortCode) {
         this.shortCode = shortCode;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

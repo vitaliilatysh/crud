@@ -3,7 +3,6 @@ package com.example.crud.controllers;
 import com.example.crud.exceptions.ItemAlreadyExistException;
 import com.example.crud.exceptions.ItemNotFoundException;
 import com.example.crud.models.Country;
-import com.example.crud.models.Role;
 import com.example.crud.models.User;
 import com.example.crud.repositories.CountryRepository;
 import com.example.crud.repositories.UserRepository;
@@ -49,7 +48,7 @@ public class UserController {
         if (!countryInDb.isPresent()) {
             throw new IllegalArgumentException(user.getCountry().getName());
         }
-        user.setRoles(Role.USER.name());
+
         user.setCreationDate(LocalDateTime.now());
         user.setCountry(countryInDb.get());
         userService.save(user);

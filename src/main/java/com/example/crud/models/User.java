@@ -9,24 +9,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class User implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseModel implements Serializable {
+
     @Column
     private String name;
     @Column
     private String email;
-    @Column
-    private String roles;
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -35,6 +30,15 @@ public class User implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id")
     private Country country;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonBackReference
+    private Set<Role> roles = new HashSet<>();
+
+    public User() {
+    }
 
     public Long getId() {
         return id;
@@ -64,11 +68,11 @@ public class User implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public List<Role> getRoles() {
-        return Arrays.stream(roles.split(",")).map(Role::valueOf).collect(Collectors.toList());
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRoles(String roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
