@@ -31,10 +31,9 @@ public class User extends BaseModel implements Serializable {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+
     @JsonBackReference
+    @ManyToMany(mappedBy = "users")
     private Set<Role> roles = new HashSet<>();
 
     public User() {
@@ -98,7 +97,7 @@ public class User extends BaseModel implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, creationDate, roles);
+        return Objects.hash(id, name, email, creationDate);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class User extends BaseModel implements Serializable {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", roles='" + roles + '\'' +
+                ", roles='" + roles.size() + '\'' +
                 ", country=" + country +
                 '}';
     }
