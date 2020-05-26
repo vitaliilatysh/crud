@@ -65,7 +65,7 @@ public class UserController extends BaseController {
         userService.delete(user.get());
     }
 
-    @GetMapping("/users/filter")
+    @GetMapping("/users/search")
     public Iterable<User> filters(@RequestParam(required = false) String name,
                                   @RequestParam(required = false) String email,
                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(required = false) LocalDate from,
