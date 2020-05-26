@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
   # APP*****************************************
   springbootapp:
-    image: springbootapp:latest
+    build: .
     network_mode: bridge
     container_name: springbootapp
     expose:
