@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class CountryController {
+public class CountryController extends BaseController {
 
     @Autowired
     private CountryRepository countryService;

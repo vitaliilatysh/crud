@@ -21,7 +21,7 @@ import static com.example.crud.repositories.UserRepository.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
 @RestController
-public class UserController {
+public class UserController extends BaseController {
 
     @Autowired
     private UserRepository userService;
