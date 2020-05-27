@@ -65,7 +65,8 @@ public class UserController extends BaseController {
     @GetMapping("/users/search")
     public Iterable<User> filters(@RequestParam(required = false) String name,
                                   @RequestParam(required = false) String email,
-                                  @RequestParam(required = false) String country) {
+                                  @RequestParam(required = false) String country,
+                                  @RequestParam(required = false) String role) {
         Country byShortCode = null;
         if (country != null) {
             byShortCode = countryService.findByCountryCode(country).orElse(null);
@@ -73,7 +74,8 @@ public class UserController extends BaseController {
 
         return userService.findAll(where(hasName(name))
                 .and(hasEmail(email))
-                .and(hasCountry(byShortCode)));
+                .and(hasCountry(byShortCode))
+                .and(hasRoleName(role)));
     }
 
     @PutMapping("/users/{id}")
