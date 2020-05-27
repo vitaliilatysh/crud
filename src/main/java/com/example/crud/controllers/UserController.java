@@ -7,11 +7,13 @@ import com.example.crud.models.User;
 import com.example.crud.repositories.CountryRepository;
 import com.example.crud.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -66,6 +68,8 @@ public class UserController extends BaseController {
     public Iterable<User> filters(@RequestParam(required = false) String name,
                                   @RequestParam(required = false) String email,
                                   @RequestParam(required = false) String country,
+                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdFrom,
+                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdTo,
                                   @RequestParam(required = false) String role) {
         Country byShortCode = null;
         if (country != null) {
@@ -75,6 +79,8 @@ public class UserController extends BaseController {
         return userService.findAll(where(hasName(name))
                 .and(hasEmail(email))
                 .and(hasCountry(byShortCode))
+                .and(createdFrom(createdFrom))
+                .and(createdTo(createdTo))
                 .and(hasRoleName(role)));
     }
 

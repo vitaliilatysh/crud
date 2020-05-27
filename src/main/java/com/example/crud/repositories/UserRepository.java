@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -39,7 +42,26 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
         return (user, cq, cb) -> cb.equal(user.get("country"), country);
     }
 
+    static Specification<User> createdFrom(final LocalDate localDate) {
+        if (localDate == null) {
+            return (user, cq, cb) -> cb.isTrue(cb.literal(true));
+        }
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.of(0, 0));
+
+        return (user, cq, cb) -> cb.greaterThanOrEqualTo(user.get("creationDate"), localDateTime);
+    }
+
+    static Specification<User> createdTo(final LocalDate localDate) {
+        if (localDate == null) {
+            return (user, cq, cb) -> cb.isTrue(cb.literal(true));
+        }
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.of(0, 0));
+
+        return (user, cq, cb) -> cb.lessThan(user.get("creationDate"), localDateTime);
+    }
+
     static Specification<User> hasRoleName(final String roleName) {
+
         return (root, query, cb) -> {
             query.distinct(true);
             Subquery<Role> roleSubQuery = query.subquery(Role.class);
@@ -53,6 +75,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Query(value = FIND_PROJECTS, nativeQuery = true)
     Optional<User> findByEmail(String email);
-
 
 }
