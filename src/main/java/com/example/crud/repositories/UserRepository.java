@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
@@ -16,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     static Specification<User> hasName(String name) {
         if (name == null) {
-            return (user, cq, cb) -> cb.isFalse(cb.literal(true));
+            return (user, cq, cb) -> cb.isTrue(cb.literal(true));
         }
         return (user, cq, cb) -> cb.equal(user.get("name"), name);
     }
@@ -26,13 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
             return (user, cq, cb) -> cb.isTrue(cb.literal(true));
         }
         return (user, cq, cb) -> cb.like(user.get("email"), email);
-    }
-
-    static Specification<User> createdFrom(LocalDate from) {
-        if (from == null) {
-            return (user, cq, cb) -> cb.isTrue(cb.literal(true));
-        }
-        return (user, cq, cb) -> cb.greaterThanOrEqualTo(user.get("creationDate"), from);
     }
 
     static Specification<User> hasCountry(Country country) {
